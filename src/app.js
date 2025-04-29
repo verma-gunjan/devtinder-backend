@@ -2,27 +2,31 @@ const express = require("express");
 const connectDB = require("../config/database");
 const app = express();
 const User = require("./model/user")
+const {validateSignupData} = require("./utils/validation");
+const bcrypt = require('bcrypt');
 
 // handle and process the json data, reads the json data and convert it to js object
 app.use(express.json())
 
 app.post("/signup", async (req, res) => {
     try {
+        data = req.body
+        // validation of data
+        validateSignupData(data);
+
         // First, check if email already exists
-        const emailExists = await User.findOne({ emailId: req.body.emailId });
+        const emailExists = await User.findOne({ emailId: data.emailId });
         if (emailExists) {
             return res.status(400).send('Email already exists');
         }
-        const data = req.body;
-        const USER_PARAMS = ["userName", "firstName", "lastName", "emailId", "password", "age", "gender", "profilePictureUrl", "additionalPictures", "about", "skills"]
-        const isCreateAllowed = Object.keys(data).every((k)=>
-            USER_PARAMS.includes(k)
-        );
-        if(!isCreateAllowed){
-            throw new Error("Cannot signup");
-        }
-        // If not, create and save new user
-        const user = new User(data);
+        // bcrypt the password
+        const {password} = data;
+        const passwordHash = await bcrypt.hash(password,10);
+
+        // create a new user instance
+        const user = new User({
+           ...data,
+            password: passwordHash});
         await user.save();
         res.send("User added successfully");
     } catch (err) {
