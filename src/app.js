@@ -13,9 +13,16 @@ app.post("/signup", async (req, res) => {
         if (emailExists) {
             return res.status(400).send('Email already exists');
         }
-
+        const data = req.body;
+        const USER_PARAMS = ["userName", "firstName", "lastName", "emailId", "password", "age", "gender", "profilePictureUrl", "additionalPictures", "about", "skills"]
+        const isCreateAllowed = Object.keys(data).every((k)=>
+            USER_PARAMS.includes(k)
+        );
+        if(!isCreateAllowed){
+            throw new Error("Cannot signup");
+        }
         // If not, create and save new user
-        const user = new User(req.body);
+        const user = new User(data);
         await user.save();
         res.send("User added successfully");
     } catch (err) {
@@ -37,8 +44,8 @@ app.get("/user", async (req, res)=>{
     }
 });
 
-app.delete("/user", async (req, res)=>{
-    const userId = req.body.userId;
+app.delete("/user/:userId", async (req, res)=>{
+    const userId = req.params.userId;
     try{
         const user = await User.findByIdAndDelete(userId);
         res.send("user deleted successfully");
