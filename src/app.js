@@ -34,6 +34,25 @@ app.post("/signup", async (req, res) => {
     }
 });
 
+app.post("/login", async (req,res) =>{
+    try{
+        const {emailId, password} = req.body;
+        const user = await User.findOne({emailId: emailId});
+        if(!user){
+            throw new Error("User is not registerd");
+        }
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if(isPasswordValid){
+            res.send("Login Successfully");
+        }else{
+            res.status(401).send("Incorrect password");
+        }
+
+    } catch(err){
+        res.status(400).send("Error:" + err.message);
+    }
+});
+
 app.get("/user", async (req, res)=>{
     const userEmail = req.body.emailId;
     try{
