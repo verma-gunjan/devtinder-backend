@@ -1,5 +1,6 @@
 const express = require('express');
 const profileRouter = express.Router();
+const bcrypt = require('bcrypt');
 
 const User = require("../model/user");
 const {userAuth} = require("../../middlewares/auth");
@@ -28,6 +29,27 @@ profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
     } catch (err) {
       return res.status(500).send("Error: " + err.message);
     }
-  }); 
+  });
+
+profileRouter.patch("/profile/edit/password", userAuth, async (req, res) => {
+    try {
+        const loggedInUser = req.user;
+        const { currentPassword, newPassword } = req.body;
+
+        if (await loggedInUser.validateNewPassword(newPassword)) {
+            return res.status(400).send("New password and current password cannot be the same");
+        }
+
+        const newPasswordHash = await bcrypt.hash(newPassword, 10);
+        loggedInUser.password = newPasswordHash;
+        await loggedInUser.save();
+
+        res.status(200).send("Password updated successfully");
+    } catch (err) {
+        console.error("Error updating password:", err);
+        res.status(500).send("Internal server error");
+    }
+});
+
 
 module.exports = profileRouter;

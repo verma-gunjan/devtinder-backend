@@ -117,4 +117,10 @@ userSchema.methods.validatePassword = async function(password){
     return isValid;
 }
 
+userSchema.methods.validateNewPassword = async function name(newPassword) {
+    const user = this;
+    const isSame = await bcrypt.compare(newPassword,user.password);
+    return isSame;
+}
+
 module.exports = mongoose.model("User", userSchema);
