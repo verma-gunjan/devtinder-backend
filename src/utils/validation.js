@@ -35,12 +35,7 @@ const validateProfileData = (req) => {
     ];
 
     const isCreateAllowed = Object.keys(req.body).every(k => ALLOWED_EDIT_KEYS.includes(k));
-    // if (!age || isNaN(age) || age < 18) throw new Error("Valid age (18+) is required");
-    // if (!gender || !["male", "female", "others"].includes(gender.toLowerCase())) {
-    //     throw new Error("Gender must be 'male', 'female' or 'others'");
-    // }
     return isCreateAllowed;
-    console.log(isCreateAllowed + "test--------------------------------");
 }
 
 module.exports = { validateSignupData, validateProfileData };

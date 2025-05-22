@@ -46,8 +46,7 @@ profileRouter.patch("/profile/edit/password", userAuth, async (req, res) => {
 
         res.status(200).send("Password updated successfully");
     } catch (err) {
-        console.error("Error updating password:", err);
-        res.status(500).send("Internal server error");
+      res.status(500).json({ message: err.message });
     }
 });
 

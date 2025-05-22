@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
         required: true,
+        index: true,
         lowercase: true,
         minLength: 4,
         maxLength: 30,
@@ -103,6 +104,10 @@ const userSchema = new mongoose.Schema({
 },{
     timestamps: true,
 });
+
+// compoud index top find user by first name and last name
+
+userSchema.index({firstName: 1,lastName: 1});
 
 // creating jwt token on login
 userSchema.methods.getJWT = async function(){
