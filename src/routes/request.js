@@ -52,4 +52,68 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req,res)=
     }
 });
 
+requestRouter.get("/requests", userAuth, async (req, res)=>{
+    const loggedInUser = req.user;
+    const myRequests = await connectionRequest.find({
+        toUserId: loggedInUser._id,
+        status: "interested",
+    });
+    if(!myRequests){
+        return res.status(404).json({
+            message: "no request found"
+        })
+    }
+    res.status(200).json({
+        data: myRequests
+    });
+})
+
+requestRouter.get("/request/profile/view/:fromUserId", userAuth, async(req, res)=>{
+    const fromUser = req.params.fromUserId;
+    const fromUserData = await User.findOne({_id: fromUser});
+    if(!fromUserData){
+        return res.status(404).json({
+            message: "no profile found"
+        })
+    }
+    res.status(200).json({
+        data: fromUserData,
+    });
+})
+
+requestRouter.post("/request/review/:status/:requestId", userAuth, async (req,res)=>{
+    try{
+        const loggedInUser = req.user;
+        const {status, requestId} = req.params;
+        // validate status
+        const allowedStatus = ["accepted", "rejected"];
+        if(!allowedStatus.includes(status)){
+            return res.status(400).json({
+                message: "Status is invalid"
+            })
+        }
+
+        const request = await connectionRequest.findOne({
+            _id: requestId,
+            toUserId: loggedInUser._id,
+            status: "interested",
+        });
+
+        if(!request){
+            return res.send(404).json({
+                message: "connection request not found",
+            })
+        }
+        request.status = status;
+        await request.save();
+        res.send(202).json({
+            message: "connection request is" + status,
+            data: request
+        })
+        
+    } catch(err){
+
+    }
+});
+
 module.exports = requestRouter;
