@@ -6,7 +6,7 @@ const cookieParser = require("cookie-parser");
 
 // handle and process the json data, reads the json data and convert it to js object
 app.use(cors(
-  {  origin: "http://localhost:5174",
+  {  origin: "http://localhost:5173",
     credentials: true,}
 ));
 app.use(express.json());
